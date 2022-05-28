@@ -1,0 +1,30 @@
+{
+  "name": "web-note",
+  "version": "1.0.0",
+  "description": "notebook",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/yanyang1116/web-note.git"
+  },
+  "keywords": [
+    "notebook"
+  ],
+  "author": "yy",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/yanyang1116/web-note/issues"
+  },
+  "homepage": "https://github.com/yanyang1116/web-note#readme",
+  "devDependencies": {
+    "webpack": "^5.72.1",
+    "webpack-cli": "^4.9.2"
+  },
+  "dependencies": {
+    "react": "^18.1.0",
+    "react-dom": "^18.1.0"
+  }
+}
