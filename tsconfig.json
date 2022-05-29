@@ -11,6 +11,8 @@
     ],
     "compilerOptions": {
       // "outDir": "./lib",
+	  	"allowJs": true,
+		"jsx": "react",
       /**
        * module 与 target 是成对存在
        * module -> 生成的代码采用什么模块系统来表述引用关系
