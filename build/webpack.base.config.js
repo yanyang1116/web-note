@@ -1,30 +1,21 @@
-const path = require('path')
-const HtmlWebpackPlugin = require('html-webpack-plugin')
+const HtmlWebpackPlugin = require('html-webpack-plugin');
 
-const npm_package = require('../package.json')
-const appRootPathResolve = require('../utils/build')
-
-const pathResolve = (relativePath) => path.resolve(__dirname, relativePath)
-
-Object.keys(npm_package._moduleAliases).forEach((item) => {
-	npm_package._moduleAliases[item] = appRootPathResolve(npm_package._moduleAliases[item])
-})
-
-const aliasMap = npm_package._moduleAliases
+const {
+	appRootPathResolve,
+	relativePathResolve,
+} = require('./utils/pathResolve');
+const alias = require('./utils/webpackResolveAlias');
 
 const baseConfig = {
 	entry: appRootPathResolve('./src/view/index.tsx'),
 	output: {
-		path: pathResolve('../dist/'),
+		path: relativePathResolve('../dist/'),
 		publicPath: '/',
 		filename: '[name].js',
 	},
 	resolve: {
-		alias: aliasMap,
+		alias,
 		extensions: ['.ts', '.tsx', '.js', '.jsx', '.json'],
-	},
-	performance: {
-		hints: false,
 	},
 	module: {
 		rules: [
@@ -40,9 +31,9 @@ const baseConfig = {
 	},
 	plugins: [
 		new HtmlWebpackPlugin({
-			template: appRootPathResolve('./template/index.html'),
+			template: appRootPathResolve('./index.html'),
 		}),
 	],
-}
+};
 
-module.exports = baseConfig
+module.exports = baseConfig;
