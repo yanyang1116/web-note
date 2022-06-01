@@ -1,6 +1,6 @@
 const { appRootPathResolve } = require('./pathResolve');
 
-export default {
+module.exports = {
 	'@/api/': appRootPathResolve('./src/api/'),
 	'@/assets/': appRootPathResolve('./src/assets/'),
 	'@/const/': appRootPathResolve('./src/const/'),

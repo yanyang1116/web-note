@@ -6,11 +6,12 @@
  * 只有在针对整个项目的 tsc 或者 babel、webpack 等工具编译过程中才会起作用
  */
 {
+	// 这里 "build/**/*" 其实是不要编译的，但是不管的话，一些环境变量又感知不到
     "include": [
       "src/**/*", "typing/**/*"
     ],
     "compilerOptions": {
-      // "outDir": "./lib",
+      	// "outDir": "./lib",
 	  	"allowJs": true,
 		"jsx": "react",
 		/**

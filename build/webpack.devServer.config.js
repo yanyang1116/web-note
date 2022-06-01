@@ -1,6 +1,9 @@
+/**
+ * 开发环境中使用，规避 service worker 可能造成的小问题
+ * 下面具体使用的地方有更详细的说明
+ */
 const noopServiceWorkerMiddleware = require('react-dev-utils/noopServiceWorkerMiddleware');
 // const ignoredFiles = require('react-dev-utils/ignoredFiles')
-// const paths = require('../config/paths')
 
 const protocol = process.env.HTTPS === 'true' ? 'https' : 'http';
 

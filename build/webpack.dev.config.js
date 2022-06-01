@@ -1,6 +1,21 @@
-// 设置环境及打印相关日志
-require('./env/setEnv')();
-require('./env/envLog')();
+'use strict';
+const fs = require('fs');
+const chalk = require('react-dev-utils/chalk');
+const webpack = require('webpack');
+const WebpackDevServer = require('webpack-dev-server');
+const clearConsole = require('react-dev-utils/clearConsole');
+const checkRequiredFiles = require('react-dev-utils/checkRequiredFiles');
+const {
+	choosePort,
+	createCompiler,
+	prepareProxy,
+	prepareUrls,
+} = require('react-dev-utils/WebpackDevServerUtils');
+const openBrowser = require('react-dev-utils/openBrowser');
+const { appRootPathResolve } = require('./utils/pathResolve');
+// const paths = require('../config/paths');
+// const configFactory = require('../config/webpack.config'); // 两个配置晚点看怎么合并
+// const createDevServerConfig = require('../config/webpackDevServer.config'); // 两个配置晚点看怎么合并
 
 /**
  * Makes the script crash on unhandled rejections instead of silently
@@ -11,34 +26,24 @@ process.on('unhandledRejection', (err) => {
 	throw err;
 });
 
-const fs = require('fs');
-const chalk = require('chalk');
-const { merge } = require('webpack-merge');
-const ReactRefreshWebpackPlugin = require('@pmmmwh/react-refresh-webpack-plugin');
-const webpack = require('webpack');
-const WebpackDevServer = require('webpack-dev-server');
-const clearConsole = require('react-dev-utils/clearConsole');
-const {
-	choosePort,
-	createCompiler,
-	prepareUrls,
-} = require('react-dev-utils/WebpackDevServerUtils');
-const openBrowser = require('react-dev-utils/openBrowser');
-
-const paths = require('../config/paths');
-const baseWebpackConfig = require('./webpack.base.config');
-const createDevServerConfig = require('./webpack.devServer.config');
-
-const useYarn = fs.existsSync(paths.rootYarnLockFile);
+// Warn and crash if required files are missing
+if (
+	!checkRequiredFiles([
+		appRootPathResolve('./index.html'),
+		appRootPathResolve('./src/index.tsx'),
+	])
+) {
+	process.exit(1);
+}
 
 // 检测 stdout 是否正在传递
 const isInteractive = process.stdout.isTTY;
-
+// Tools like Cloud9 rely on this.
 const DEFAULT_PORT = parseInt(process.env.PORT, 10) || 3000;
 const HOST = process.env.HOST || '0.0.0.0';
 
-// By default, the development web server binds to all hostnames on the device (localhost, LAN network address, etc.). You may use this variable to specify a different host.
 if (process.env.HOST) {
+	// 一般这个不应该有值，抛出告警
 	console.log(
 		chalk.cyan(
 			`Attempting to bind to HOST environment variable: ${chalk.yellow(
@@ -49,111 +54,89 @@ if (process.env.HOST) {
 	console.log(
 		`If this was unintentional, check that you haven't mistakenly set it in your shell.`
 	);
-	console.log(`Learn more here: ${chalk.yellow('http://bit.ly/2mwWSwH')}`);
+	console.log(
+		`Learn more here: ${chalk.yellow('https://cra.link/advanced-config')}`
+	);
 }
 
-// some config in dev env
-const devCofig = {
-	mode: 'development',
-	plugins: [
-		// new webpack.HotModuleReplacementPlugin(),
-		// new ReactRefreshWebpackPlugin(),
-	],
-	module: {
-		rules: [
-			{
-				test: /\.(ts|tsx)?$/,
-				use: [
-					{
-						loader: 'babel-loader',
-						options: {
-							plugins: [
-								// ... other plugins
-								require.resolve('react-refresh/babel'),
-							].filter(Boolean),
-						},
-					},
-					{
-						loader: 'ts-loader',
-						options: {
-							// 不做 ts 检查，单纯编译
-							transpileOnly: true,
-						},
-					},
-				],
-				exclude: /node_modules/,
-			},
-			{
-				test: /\.(js|jsx)?$/,
-				loader: {
-					loader: 'babel-loader',
-					options: {
-						plugins: [
-							// ... other plugins
-							require.resolve('react-refresh/babel'),
-						].filter(Boolean),
-					},
-				},
-				exclude: /node_modules/,
-			},
-		],
-	},
-};
-
-const mergedConfig = merge(baseWebpackConfig, devCofig);
-
-/**
- * We attempt to use the default port but if it is busy, we offer the user to
- * run on a different port. `choosePort()` Promise resolves to the next free port.
- */
-choosePort(HOST, DEFAULT_PORT)
+// We require that you explicitly set browsers and do not fall back to
+// browserslist defaults.
+const { checkBrowsers } = require('react-dev-utils/browsersHelper');
+checkBrowsers(paths.appPath, isInteractive)
+	.then(() => {
+		// We attempt to use the default port but if it is busy, we offer the user to
+		// run on a different port. `choosePort()` Promise resolves to the next free port.
+		return choosePort(HOST, DEFAULT_PORT);
+	})
 	.then((port) => {
-		if (port == null) throw 'We have not found a port';
+		if (port == null) {
+			throw new Error('We have not found a port.');
+		}
 
+		// const config = configFactory('development');
+
+		// TODO，https 的链接方式，可以之后调试一下
 		const protocol = process.env.HTTPS === 'true' ? 'https' : 'http';
-		const appName = require(paths.rootPackageJson).name;
+
+		const appName = require(appRootPathResolve('./package.json')).name;
+
+		const useTypeScript = fs.existsSync(
+			appRootPathResolve('./tsconfig.json')
+		);
+		const useYarn = fs.existsSync(appRootPathResolve('./yarn.lock'));
+
 		const urls = prepareUrls(protocol, HOST, port);
 
 		// Create a webpack compiler that is configured with custom messages.
 		const compiler = createCompiler({
-			webpack,
-			config: mergedConfig,
 			appName,
+			// config, // todo
 			urls,
 			useYarn,
+			useTypeScript,
+			webpack,
 		});
 
-		// Load proxy config（暂时不需要）
-		// const proxySetting = require(paths.rootPackageJson).proxy
-		// const proxyConfig = prepareProxy(proxySetting, paths.rootPublic)
+		// Load proxy config，TODO 暂时不需要
+		// const proxySetting = require(paths.appPackageJson).proxy;
+		// const proxyConfig = prepareProxy(
+		// 	proxySetting,
+		// 	paths.appPublic,
+		// 	paths.publicUrlOrPath
+		// );
 
-		// Serve webpack assets generated by the compiler over a web sever.
-		const serverConfig = createDevServerConfig(
-			undefined,
-			urls.lanUrlForConfig
-		);
-		serverConfig.sockHost = `localhost`;
-		serverConfig.sockPort = port;
-		const devServer = new WebpackDevServer(compiler, serverConfig);
+		// Serve webpack assets generated by the compiler over a web server.
+		const serverConfig = {
+			...createDevServerConfig(proxyConfig, urls.lanUrlForConfig),
+			host: HOST,
+			port,
+		};
+		const devServer = new WebpackDevServer(serverConfig, compiler);
 
 		// Launch WebpackDevServer.
-		devServer.listen(port, HOST, (err) => {
-			if (err) {
-				console.log(err);
-				return;
-			}
+		devServer.startCallback(() => {
 			if (isInteractive) {
 				clearConsole();
 			}
+
 			console.log(chalk.cyan('Starting the development server...\n'));
 			openBrowser(urls.localUrlForBrowser);
 		});
-		['SIGINT', 'SIGTERM'].forEach((sig) => {
-			process.on(sig, () => {
+
+		['SIGINT', 'SIGTERM'].forEach(function (sig) {
+			process.on(sig, function () {
 				devServer.close();
 				process.exit();
 			});
 		});
+
+		if (process.env.CI !== 'true') {
+			// Gracefully exit when stdin ends
+			process.stdin.on('end', function () {
+				devServer.close();
+				process.exit();
+			});
+		}
 	})
 	.catch((err) => {
 		if (err && err.message) {

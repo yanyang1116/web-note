@@ -7,12 +7,11 @@ declare global {
 	interface Window {
 		__REDUX_DEVTOOLS_EXTENSION_COMPOSE__: any;
 	}
-}
-
-declare namespace NodeJS {
-	interface ProcessEnv {
-		DEPLOY_ENV: 'dev' | 'prd';
-		NODE_ENV: 'development' | 'production';
+	namespace NodeJS {
+		interface ProcessEnv {
+			DEPLOY_ENV: 'dev' | 'prd';
+			NODE_ENV: 'development' | 'production';
+		}
 	}
 }
 

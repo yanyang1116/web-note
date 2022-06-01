@@ -8,6 +8,11 @@ import { createBrowserHistory } from 'history';
 
 // import store from './store/index';
 
+const a: webpack;
+
+// process.env.
+// const a: XOR<string, number>
+
 import '@view/assets/global.less';
 import routerConfig from './views/index';
 const history = createBrowserHistory({ window });
