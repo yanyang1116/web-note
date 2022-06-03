@@ -3,17 +3,19 @@
 const fs = require('fs');
 const envArgs = process.argv;
 
+const dotenvExpand = require('dotenv-expand');
+const dotenv = require('dotenv');
+
 /**
  * 区分 NODE_ENV 和 DELOY_ENV 是有必要的
  * 有时候想生产 debugger，变量环境依赖 NODE_ENV 会比较繁琐，因为 NODE_ENV 是和打包挂钩的
  */
-const DEPLOY_ENV = envArgs[envArgs.length - 1];
+let DEPLOY_ENV = envArgs[envArgs.length - 1];
+DEPLOY_ENV = DEPLOY_ENV.replace('--', ''); // 参数这里以 -- 传递，这里要处理下
 
 const { relativePathResolve } = require('../utils/pathResolve');
 
-module.exports = function (obj) {
-	// TODO 只是想打印看看
-	console.log(obj, 123);
+module.exports = function () {
 	const { NODE_ENV } = process.env;
 	if (!NODE_ENV) {
 		throw new Error(
@@ -29,13 +31,13 @@ module.exports = function (obj) {
 
 	// https://github.com/bkeepers/dotenv#what-other-env-files-can-i-use
 	const dotenvFiles = [
-		`${relativePathResolve('./')}.${DEPLOY_ENV}`,
+		`${relativePathResolve('./', __dirname)}/.${DEPLOY_ENV}`,
 		/**
 		 * 如果有多人开发，本地增加一个 env 配置会更好，git 提交的时候要 ignore 掉
 		 * 这里注意顺序，放在下面能在具体 dotenv 的时候覆盖上面的
 		 */
-		`${relativePathResolve('./')}.${DEPLOY_ENV}.local`,
-	].filter(Boolean);
+		`${relativePathResolve('./', __dirname)}/.${DEPLOY_ENV}.local`,
+	].filter((item) => fs.existsSync(item));
 
 	// Load environment variables from .env* files. Suppress warnings using silent
 	// if this file is missing. dotenv will never modify any environment variables
@@ -43,23 +45,10 @@ module.exports = function (obj) {
 	// https://github.com/motdotla/dotenv
 	// https://github.com/motdotla/dotenv-expand
 	dotenvFiles.forEach((dotenvFile) => {
-		if (fs.existsSync(dotenvFile)) {
-			require('dotenv-expand')(
-				require('dotenv').config({
-					path: dotenvFile,
-				})
-			);
-		}
+		dotenvExpand.expand(
+			dotenv.config({
+				path: dotenvFile,
+			})
+		);
 	});
-
-	if (obj) {
-		const keyArr = Object.keys(obj);
-		if (keyArr.length) {
-			keyArr.map((item) => {
-				if (item && obj[item] !== 'undefined') {
-					process.env[item] = obj[item];
-				}
-			});
-		}
-	}
 };

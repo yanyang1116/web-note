@@ -17,9 +17,10 @@ require('./env/envLog')();
 const baseConfig = {
 	target: ['browserslist'], // 构建目标，尝试去配置文件寻找 browserslist 字段
 	stats: 'errors-warnings', // 告警范围，仅错误和告警
-	entry: appRootPathResolve('./src/view/index.tsx'),
+	// entry: appRootPathResolve('./src/view/index.tsx'),
+	entry: appRootPathResolve('./src/view/index.jsx'),
 	output: {
-		path: relativePathResolve('../dist/'),
+		path: relativePathResolve('../dist/', __dirname),
 		publicPath: '/',
 		filename: '[name].js',
 	},

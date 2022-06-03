@@ -1,18 +1,18 @@
 import React from 'react';
 // import { Provider } from 'react-redux';
-import {
-	Route,
-	unstable_HistoryRouter as HistoryRouter,
-} from 'react-router-dom';
-import { createBrowserHistory } from 'history';
+// import {
+// 	Route,
+// 	unstable_HistoryRouter as HistoryRouter,
+// } from 'react-router-dom';
+// import { createBrowserHistory } from 'history';
 
 // import store from './store/index';
 // process.env.
 // const a: XOR<string, number>
 
-import '@view/assets/global.less';
-import routerConfig from './views/index';
-const history = createBrowserHistory({ window });
+// import '@view/assets/global.less';
+// import routerConfig from './views/index';
+// const history = createBrowserHistory({ window });
 
 export default function App() {
 	return (

@@ -6,6 +6,8 @@
 
 // style files regexes
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
+const getCSSModuleLocalIdent = require('react-dev-utils/getCSSModuleLocalIdent');
+
 const { appRootPathResolve } = require('./utils/pathResolve');
 
 const cssRegex = /\.css$/;

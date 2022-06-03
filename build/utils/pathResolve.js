@@ -12,5 +12,5 @@ const appDirectory = fs.realpathSync(process.cwd());
 module.exports.appRootPathResolve = (relativePath) =>
 	path.resolve(appDirectory, relativePath);
 
-module.exports.relativePathResolve = (relativePath) =>
+module.exports.relativePathResolve = (relativePath, __dirname) =>
 	path.resolve(__dirname, relativePath);
