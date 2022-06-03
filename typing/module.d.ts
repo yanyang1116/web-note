@@ -11,6 +11,7 @@ declare global {
 		interface ProcessEnv {
 			DEPLOY_ENV: 'dev' | 'prd';
 			NODE_ENV: 'development' | 'production';
+			PUBLIC_URL?: string;
 		}
 	}
 }

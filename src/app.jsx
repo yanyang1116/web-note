@@ -7,9 +7,6 @@ import {
 import { createBrowserHistory } from 'history';
 
 // import store from './store/index';
-
-const a: webpack;
-
 // process.env.
 // const a: XOR<string, number>
 
@@ -19,12 +16,13 @@ const history = createBrowserHistory({ window });
 
 export default function App() {
 	return (
+		<div>123</div>
 		// <Provider store={store}>
-		<HistoryRouter history={history}>
-			{routerConfig.map((item) => (
-				<Route path={item.path} element={item.element} />
-			))}
-		</HistoryRouter>
+		// <HistoryRouter history={history}>
+		// 	{routerConfig.map((item) => (
+		// 		<Route path={item.path} element={item.element} />
+		// 	))}
+		// </HistoryRouter>
 		// </Provider>
 	);
 }

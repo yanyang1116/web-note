@@ -2,7 +2,6 @@
  * @file 因为用了 oneOf 优化，babel-loader 就不读配置文件了
  */
 const HtmlWebpackPlugin = require('html-webpack-plugin');
-const ModuleNotFoundPlugin = require('react-dev-utils/ModuleNotFoundPlugin');
 const cssLoaderConfig = require('./cssLoader.config');
 
 const {
