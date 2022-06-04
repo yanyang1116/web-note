@@ -3,4 +3,6 @@ import React from 'react';
 
 import App from './app';
 
-ReactDOM.render(<App />, document.getElementById('root'));
+console.log(12312);
+
+// ReactDOM.render(<App />, document.getElementById('root'));

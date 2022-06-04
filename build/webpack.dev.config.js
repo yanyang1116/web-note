@@ -29,7 +29,8 @@ if (
 	!checkRequiredFiles([
 		appRootPathResolve('./index.html'),
 		// appRootPathResolve('./src/index.tsx'),
-		appRootPathResolve('./src/index.jsx'),
+		// appRootPathResolve('./src/index.jsx'),
+		appRootPathResolve('./src/index.js'),
 	])
 ) {
 	process.exit(1);
@@ -119,7 +120,8 @@ checkBrowsers(appRootPathResolve('./'), isInteractive)
 		// Launch WebpackDevServer.
 		devServer.startCallback(() => {
 			if (isInteractive) {
-				clearConsole();
+				// 保留日志过程，会更好一些
+				// clearConsole();
 			}
 
 			console.log(chalk.cyan('Starting the development server...\n'));

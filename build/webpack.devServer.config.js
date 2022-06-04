@@ -59,7 +59,7 @@ module.exports = function (proxy, allowedHost) {
 			// for files like `favicon.ico`, `manifest.json`, and libraries that are
 			// for some reason broken when imported through webpack. If you just want to
 			// use an image, put it in `src` and `import` it from JavaScript instead.
-			directory: appRootPathResolve('./'),
+			directory: appRootPathResolve('./dist'),
 			publicPath: [process.env.PUBLIC_URL],
 			// By default files from `contentBase` will not trigger a page reload.
 			watch: {
@@ -94,32 +94,32 @@ module.exports = function (proxy, allowedHost) {
 		// TODO，先不考虑 https
 		// https: getHttpsConfig(),
 		host,
-		historyApiFallback: {
-			// Paths with dots should still use the history fallback.
-			// See https://github.com/facebook/create-react-app/issues/387.
-			disableDotRule: true,
-			index: appRootPathResolve('./'),
-		},
+		// historyApiFallback: {
+		// 	// Paths with dots should still use the history fallback.
+		// 	// See https://github.com/facebook/create-react-app/issues/387.
+		// 	disableDotRule: true,
+		// 	index: appRootPathResolve('./'),
+		// },
 		// `proxy` is run between `before` and `after` `webpack-dev-server` hooks
-		proxy,
-		onBeforeSetupMiddleware(devServer) {
-			// Keep `evalSourceMapMiddleware`
-			// middlewares before `redirectServedPath` otherwise will not have any effect
-			// This lets us fetch source contents from webpack for the error overlay
-			devServer.app.use(evalSourceMapMiddleware(devServer));
-		},
-		onAfterSetupMiddleware(devServer) {
-			// Redirect to `PUBLIC_URL` or `homepage` from `package.json` if url not match
-			devServer.app.use(redirectServedPath(appRootPathResolve('./')));
+		// proxy,
+		// onBeforeSetupMiddleware(devServer) {
+		// 	// Keep `evalSourceMapMiddleware`
+		// 	// middlewares before `redirectServedPath` otherwise will not have any effect
+		// 	// This lets us fetch source contents from webpack for the error overlay
+		// 	devServer.app.use(evalSourceMapMiddleware(devServer));
+		// },
+		// onAfterSetupMiddleware(devServer) {
+		// 	// Redirect to `PUBLIC_URL` or `homepage` from `package.json` if url not match
+		// 	devServer.app.use(redirectServedPath(appRootPathResolve('./')));
 
-			// This service worker file is effectively a 'no-op' that will reset any
-			// previous service worker registered for the same host:port combination.
-			// We do this in development to avoid hitting the production cache if
-			// it used the same host and port.
-			// https://github.com/facebook/create-react-app/issues/2272#issuecomment-302832432
-			devServer.app.use(
-				noopServiceWorkerMiddleware(appRootPathResolve('./'))
-			);
-		},
+		// 	// This service worker file is effectively a 'no-op' that will reset any
+		// 	// previous service worker registered for the same host:port combination.
+		// 	// We do this in development to avoid hitting the production cache if
+		// 	// it used the same host and port.
+		// 	// https://github.com/facebook/create-react-app/issues/2272#issuecomment-302832432
+		// 	devServer.app.use(
+		// 		noopServiceWorkerMiddleware(appRootPathResolve('./'))
+		// 	);
+		// },
 	};
 };

@@ -17,8 +17,9 @@ require('./env/envLog')();
 const baseConfig = {
 	target: ['browserslist'], // 构建目标，尝试去配置文件寻找 browserslist 字段
 	stats: 'errors-warnings', // 告警范围，仅错误和告警
-	// entry: appRootPathResolve('./src/view/index.tsx'),
-	entry: appRootPathResolve('./src/view/index.jsx'),
+	mode: process.env.NODE_ENV,
+	// entry: appRootPathResolve('./src/index.tsx'),
+	entry: appRootPathResolve('./src/index.js'),
 	output: {
 		path: relativePathResolve('../dist/', __dirname),
 		publicPath: '/',
@@ -125,7 +126,7 @@ const baseConfig = {
 					 */
 					compact: process.env.NODE_ENV === 'production',
 					plugins: [
-						['@babel/plugin-proposal-decorators'],
+						['@babel/plugin-proposal-decorators', { legacy: true }],
 						[
 							'@babel/plugin-transform-runtime',
 							{

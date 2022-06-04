@@ -13,10 +13,14 @@ import React from 'react';
 // import '@view/assets/global.less';
 // import routerConfig from './views/index';
 // const history = createBrowserHistory({ window });
+console.log(12312)
 
 export default function App() {
 	return (
-		<div>123</div>
+		<div>
+			<div>123</div>
+			<div>234asdfasdf</div>
+		</div>
 		// <Provider store={store}>
 		// <HistoryRouter history={history}>
 		// 	{routerConfig.map((item) => (
