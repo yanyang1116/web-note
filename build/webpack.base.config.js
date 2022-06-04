@@ -3,6 +3,8 @@
  */
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const ModuleNotFoundPlugin = require('react-dev-utils/ModuleNotFoundPlugin');
+// 这个插件要和 react-refresh 配合使用
+const ReactRefreshWebpackPlugin = require('@pmmmwh/react-refresh-webpack-plugin');
 const cssLoaderConfig = require('./cssLoader.config');
 
 const {
@@ -14,16 +16,17 @@ const alias = require('./utils/webpackResolveAlias');
 require('./env/setEnv')();
 require('./env/envLog')();
 
+const isEnvProduction = process.env.NODE_ENV === 'production';
+
 const baseConfig = {
 	target: ['browserslist'], // 构建目标，尝试去配置文件寻找 browserslist 字段
 	stats: 'errors-warnings', // 告警范围，仅错误和告警
 	mode: process.env.NODE_ENV,
-	// entry: appRootPathResolve('./src/index.tsx'),
-	entry: appRootPathResolve('./src/index.js'),
+	entry: appRootPathResolve('./src/index.jsx'),
 	output: {
 		path: relativePathResolve('../dist/', __dirname),
 		publicPath: '/',
-		filename: '[name].js',
+		filename: isEnvProduction ? '[name].[contenthash:8].js' : '[name].js',
 	},
 	resolve: {
 		alias,
@@ -87,7 +90,7 @@ const baseConfig = {
 					 * presets 的顺序是从右往左
 					 *
 					 * preset-react
-					 * 保持默认配置就好了，具体可以看官网的配置说明，感觉额外配置并没有什么用
+					 * 只要关注一个 runtime 自动导入就可以了，其他不需要关注
 					 *
 					 * preset-env
 					 * 根据 target 按需处理 polyfill、词法
@@ -108,15 +111,13 @@ const baseConfig = {
 								useBuiltIns: false, // 虽然默认值就是 false，但这里显式的强调一下
 							},
 						],
-						'@babel/preset-react',
+						[
+							'@babel/preset-react',
+							{
+								runtime: 'automatic',
+							},
+						],
 					],
-					// 因为 oneOf 只有 react 代码才会命中这里，所以热更新写在这里就好了
-					// plugins: [
-					// 	// isEnvDevelopment &&
-					// 	// 	shouldUseReactRefresh &&
-					// 	// 根据环境看，TODO 这个要测一下
-					// 	require.resolve('react-refresh/babel'),
-					// ].filter(Boolean),
 					cacheDirectory: true,
 					cacheCompression: false,
 					/**
@@ -126,6 +127,9 @@ const baseConfig = {
 					 */
 					compact: process.env.NODE_ENV === 'production',
 					plugins: [
+						// react 热更新
+						!isEnvProduction &&
+							require.resolve('react-refresh/babel'),
 						['@babel/plugin-proposal-decorators', { legacy: true }],
 						[
 							'@babel/plugin-transform-runtime',
@@ -158,10 +162,7 @@ const baseConfig = {
 				loader: require.resolve('babel-loader'),
 				options: {
 					compact: false, // 因为基本上是 node_modules 或者自己写的普通函数，详细的打印就不需要了
-					presets: [
-						['@babel/preset-env', { useBuiltIns: false }],
-						'@babel/preset-react',
-					],
+					presets: [['@babel/preset-env', { useBuiltIns: false }]],
 					/**
 					 * This is a feature of `babel-loader` for webpack (not Babel itself).
 					 * It enables caching results in ./node_modules/.cache/babel-loader/
@@ -249,9 +250,13 @@ const baseConfig = {
 
 		// Experimental hot reloading for React .
 		// https://github.com/facebook/react/tree/main/packages/react-refresh
-		// new ReactRefreshWebpackPlugin({
-		// 	overlay: true,
-		// }),
+		new ReactRefreshWebpackPlugin({
+			/**
+			 * 这个遮罩会替换 devServer client 里的配置
+			 * 不过如果是 true，则不可被关
+			 */
+			overlay: true,
+		}),
 
 		/**
 		 * TypeScript type checking

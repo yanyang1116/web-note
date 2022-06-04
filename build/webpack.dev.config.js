@@ -29,8 +29,7 @@ if (
 	!checkRequiredFiles([
 		appRootPathResolve('./index.html'),
 		// appRootPathResolve('./src/index.tsx'),
-		// appRootPathResolve('./src/index.jsx'),
-		appRootPathResolve('./src/index.js'),
+		appRootPathResolve('./src/index.jsx'),
 	])
 ) {
 	process.exit(1);

@@ -61,6 +61,7 @@ module.exports = function (proxy, allowedHost) {
 			// use an image, put it in `src` and `import` it from JavaScript instead.
 			directory: appRootPathResolve('./dist'),
 			publicPath: [process.env.PUBLIC_URL],
+			serveIndex: true,
 			// By default files from `contentBase` will not trigger a page reload.
 			watch: {
 				// Reportedly, this avoids CPU overload on some systems.
@@ -79,17 +80,17 @@ module.exports = function (proxy, allowedHost) {
 				pathname: sockPath,
 				port: sockPort,
 			},
-			overlay: {
-				errors: true,
-				warnings: false,
-			},
 		},
 		devMiddleware: {
 			// It is important to tell WebpackDevServer to use the same "publicPath" path as
 			// we specified in the webpack config. When homepage is '.', default to serving
 			// from the root.
 			// remove last slash so user can land on `/test` instead of `/test/`
-			publicPath: appRootPathResolve('./'),
+			/**
+			 * 就是因为这个中间件设置，导致我 webpack dev server 找不到虚拟内存中的 dist
+			 * 这个先放着，晚点观察下
+			 */
+			// publicPath: appRootPathResolve('./'),
 		},
 		// TODO，先不考虑 https
 		// https: getHttpsConfig(),
