@@ -3,8 +3,13 @@
  */
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const webpack = require('webpack');
+const resolve = require('resolve');
 const ModuleNotFoundPlugin = require('react-dev-utils/ModuleNotFoundPlugin');
 const InterpolateHtmlPlugin = require('react-dev-utils/InterpolateHtmlPlugin');
+const ForkTsCheckerWebpackPlugin =
+	process.env.TSC_COMPILE_ON_ERROR === 'true'
+		? require('react-dev-utils/ForkTsCheckerWarningWebpackPlugin')
+		: require('react-dev-utils/ForkTsCheckerWebpackPlugin');
 /**
  * 这个插件要和 react-refresh 配合使用，不然会报错
  * 这里值得注意的是，devServer 里的 hot 和 hotOnly 已经不用关心了（当然文档里还是保留这个字段的）
@@ -34,7 +39,9 @@ const baseConfig = {
 	target: ['browserslist'], // 构建目标，尝试去配置文件寻找 browserslist 字段
 	stats: 'errors-warnings', // 告警范围，仅错误和告警
 	mode: process.env.NODE_ENV,
-	entry: appRootPathResolve('./src/index.jsx'),
+	entry: appRootPathResolve('./src/index.tsx'),
+	bail: isEnvProduction, // Stop compilation early in production
+	devtool: isEnvProduction ? 'source-map' : 'cheap-module-source-map',
 	output: {
 		path: relativePathResolve('../dist/', __dirname),
 		publicPath: '/',
@@ -49,6 +56,26 @@ const baseConfig = {
 	},
 	module: {
 		rules: [
+			/**
+			 * Handle node_modules packages that contain sourcemaps
+			 * 这个插件和 devtool 里的 source-map 并不冲突，也就是 devtool 也要设置的
+			 * 主要是为了处理第三方库的 sourcemap 提取
+			 */
+			{
+				enforce: 'pre',
+				exclude: /@babel(?:\/|\\{1,2})runtime/,
+				/**
+				 * 可以看到 scss 的这个插件没管
+				 * 这个应该也是可以理解的，毕竟第三方库肯定是把 css 暴露出来的
+				 * 自己源文件的 scss 要用 scss 自己处理，devtool 只是处理 JS 的
+				 * 所以是三个东西：
+				 * 	devtool sourcemap -> 处理自己写的文件的 js
+				 * 	scss sourcemap -> 处理预处理器的 map
+				 *  source-map-loader -> 处理第三方库的 map
+				 */
+				test: /\.(js|mjs|jsx|ts|tsx|css)$/,
+				loader: require.resolve('source-map-loader'),
+			},
 			{
 				oneOf: [
 					{
@@ -90,6 +117,7 @@ const baseConfig = {
 							/**
 							 * 文档解释：
 							 * 在规则中，属性 test, include, exclude 和 resource 对 resource 匹配，并且属性 issuer 对 issuer 匹配。
+							 * 只有在这些文件发起的 resolve 才会命中这个 loader
 							 */
 							and: [/\.(ts|tsx|js|jsx)$/],
 						},
@@ -119,6 +147,8 @@ const baseConfig = {
 							 * 这个是默认值，不做任何处理，这个以前是配合 babel-polyfill 全量挂载用的
 							 *
 							 * 使用 transform-runtime 转化成沙盒工具函数会更好，而且这个值就设置成 false，默认值
+							 *
+							 * preset-typescript 先保持默认吧
 							 */
 							presets: [
 								[
@@ -133,6 +163,7 @@ const baseConfig = {
 										runtime: 'automatic',
 									},
 								],
+								['@babel/preset-typescript'],
 							],
 							cacheDirectory: true,
 							cacheCompression: false,
@@ -194,6 +225,16 @@ const baseConfig = {
 							 */
 							cacheDirectory: true,
 							cacheCompression: false,
+							/**
+							 * Babel sourcemaps are needed for debugging into node_modules
+							 * code.  Without the options below, debuggers like VSCode
+							 * show incorrect code and set breakpoints on the wrong lines.
+							 *
+							 * 主要是为了处理 node_modules 里的 sourceMap
+							 * 这里建议开启
+							 */
+							sourceMaps: true,
+							inputSourceMap: true,
 						},
 					},
 					...cssLoaderConfig,
@@ -286,51 +327,51 @@ const baseConfig = {
 
 		/**
 		 * TypeScript type checking
-		 * 加快 ts 检查，属于优化方面的插件
+		 * 加快 ts 检查以及错误追踪，保持这个配置就好了
 		 * https://www.npmjs.com/package/fork-ts-checker-webpack-plugin
 		 */
-		// new ForkTsCheckerWebpackPlugin({
-		// 	async: process.env.NODE_ENV === 'development',
-		// 	typescript: {
-		// 		typescriptPath: resolve.sync('typescript', {
-		// 			basedir: appRootPathResolve('./node_modules'),
-		// 		}),
-		// 		configOverwrite: {
-		// 			compilerOptions: {
-		// 				sourceMap: process.env.NODE_ENV === 'production',
-		// 				skipLibCheck: true,
-		// 				inlineSourceMap: false,
-		// 				declarationMap: false,
-		// 				noEmit: true,
-		// 				incremental: true,
-		// 				tsBuildInfoFile: appRootPathResolve(
-		// 					'./node_modules/.cache/tsconfig.tsbuildinfo'
-		// 				),
-		// 			},
-		// 		},
-		// 		context: appRootPathResolve('./'),
-		// 		diagnosticOptions: {
-		// 			syntactic: true,
-		// 		},
-		// 		mode: 'write-references',
-		// 	},
-		// 	issue: {
-		// 		// This one is specifically to match during CI tests,
-		// 		// as micromatch doesn't match
-		// 		// '../cra-template-typescript/template/src/App.tsx'
-		// 		// otherwise.
-		// 		include: [{ file: '**/src/**/*.{ts,tsx}' }],
-		// 		exclude: [
-		// 			// { file: '**/src/**/__tests__/**' },
-		// 			// { file: '**/src/**/?(*.){spec|test}.*' },
-		// 			// { file: '**/src/setupProxy.*' },
-		// 			// { file: '**/src/setupTests.*' },
-		// 		],
-		// 	},
-		// 	logger: {
-		// 		infrastructure: 'silent',
-		// 	},
-		// }),
+		new ForkTsCheckerWebpackPlugin({
+			async: !isEnvProduction,
+			typescript: {
+				typescriptPath: resolve.sync('typescript', {
+					basedir: appRootPathResolve('./node_modules'),
+				}),
+				configOverwrite: {
+					compilerOptions: {
+						sourceMap: isEnvProduction,
+						skipLibCheck: true,
+						inlineSourceMap: false,
+						declarationMap: false,
+						noEmit: true,
+						incremental: true,
+						tsBuildInfoFile: appRootPathResolve(
+							'./node_modules/.cache/tsconfig.tsbuildinfo'
+						),
+					},
+				},
+				context: appRootPathResolve('./'),
+				diagnosticOptions: {
+					syntactic: true,
+				},
+				mode: 'write-references',
+			},
+			issue: {
+				// This one is specifically to match during CI tests,
+				// as micromatch doesn't match
+				// '../cra-template-typescript/template/src/App.tsx'
+				// otherwise.
+				include: [{ file: '**/src/**/*.{ts,tsx}' }],
+				exclude: [
+					// { file: '**/src/**/__tests__/**' },
+					// { file: '**/src/**/?(*.){spec|test}.*' },
+					// { file: '**/src/setupProxy.*' },
+					// { file: '**/src/setupTests.*' },
+				],
+			},
+			logger: {
+				infrastructure: 'silent',
+			},
+		}),
 	],
 };
 

@@ -28,8 +28,7 @@ process.on('unhandledRejection', (err) => {
 if (
 	!checkRequiredFiles([
 		appRootPathResolve('./index.html'),
-		// appRootPathResolve('./src/index.tsx'),
-		appRootPathResolve('./src/index.jsx'),
+		appRootPathResolve('./src/index.tsx'),
 	])
 ) {
 	process.exit(1);

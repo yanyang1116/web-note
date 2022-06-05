@@ -1,6 +1,6 @@
 import React, { useCallback, useMemo, useState } from 'react';
-import styles from './assets/global.scss';
-import A from './assets/800webp.webp';
+// import styles from './assets/global.scss';
+// import A from './assets/800webp.webp';
 // import { Provider } from 'react-redux';
 // import {
 // 	Route,
@@ -28,7 +28,7 @@ export default function App() {
 			<div onClick={handleClick}>点击啊</div>
 			<div onClick={handleClick}>{process.env.DEPLOY_ENV}</div>
 			<div>{count}</div>
-			<img src={A} />
+			{/* <img src={A} /> */}
 			<div className="a"></div>
 		</div>
 		// <Provider store={store}>
