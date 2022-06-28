@@ -7,13 +7,9 @@
     "dev": "cross-env NODE_ENV=development node ./build/webpack.dev.config.js --dev",
     "dev:test": "cross-env NODE_ENV=development node ./build/webpack.dev.config.js --test",
     "build": "cross-env NODE_ENV=production node ./build/webpack.prd.config.js --prd",
-	"hi": "husky install"
-  },
-  "husky": {
-    "hooks": {
-      "pre-commit": "lint-staged",
-      "commit-msg": "commitlint -e $HUSKY_GIT_PARAMS"
-    }
+	"husky:install": "husky install",
+	"lint:msg": "commitlint --edit",
+	"lint:staged": "lint-staged"
   },
   "lint-staged": {
     "*.{js,jsx,ts,tsx}": [
