@@ -10,10 +10,11 @@
 		"husky:install": "husky install",
 		"lint:msg": "commitlint --edit",
 		"lint:staged": "lint-staged",
-		"prettier": "prettier --write ."
+		"prettier": "prettier --write"
 	},
 	"lint-staged": {
-		"*.{js,jsx,ts,tsx}": [
+		"*.{js,jsx,ts,tsx}": [],
+		"*": [
 			"npm run prettier"
 		]
 	},
