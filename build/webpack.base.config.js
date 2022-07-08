@@ -1,27 +1,29 @@
 /**
- * @file 因为用了 oneOf 优化，babel-loader 就不读配置文件
+ * @file
+ * 因为用了 oneOf 优化，babel-loader 就不读配置文件
  */
+
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const webpack = require('webpack');
-const resolve = require('resolve');
 const ModuleNotFoundPlugin = require('react-dev-utils/ModuleNotFoundPlugin');
 const InterpolateHtmlPlugin = require('react-dev-utils/InterpolateHtmlPlugin');
-const ForkTsCheckerWebpackPlugin =
-	process.env.TSC_COMPILE_ON_ERROR === 'true'
-		? require('react-dev-utils/ForkTsCheckerWarningWebpackPlugin')
-		: require('react-dev-utils/ForkTsCheckerWebpackPlugin');
+
+/**
+ * 此插件可以单独开线程检查 ts 类型，从而提高编译速度，不过目前先不用
+ * https://webpack.docschina.org/guides/build-performance/
+ */
+// const ForkTsCheckerWebpackPlugin =
+// 	process.env.TSC_COMPILE_ON_ERROR === 'true'
+// 		? require('react-dev-utils/ForkTsCheckerWarningWebpackPlugin')
+// 		: require('react-dev-utils/ForkTsCheckerWebpackPlugin');
 /**
  * 这个插件要和 react-refresh 配合使用，不然会报错
- * 这里值得注意的是，devServer 里的 hot 和 hotOnly 已经不用关心了（当然文档里还是保留这个字段的）
- * 如果使用这一套热加载机制的话，不需要额外配置了
+ * 这里值得注意的是，如果使用了这个插件 devServer 里的 hot 和 hotOnly 已经不用关心了
  */
 const ReactRefreshWebpackPlugin = require('@pmmmwh/react-refresh-webpack-plugin');
 const cssLoaderConfig = require('./cssLoader.config');
 
-const {
-	appRootPathResolve,
-	relativePathResolve,
-} = require('./utils/pathResolve');
+const { appRootPathResolve } = require('./utils/pathResolve');
 const alias = require('./utils/webpackResolveAlias');
 
 require('./env/setEnv')();
@@ -43,8 +45,8 @@ const baseConfig = {
 	bail: isEnvProduction, // Stop compilation early in production
 	devtool: isEnvProduction ? 'source-map' : 'cheap-module-source-map',
 	output: {
-		path: relativePathResolve('../dist/', __dirname),
-		publicPath: '/',
+		path: appRootPathResolve('./dist'),
+		publicPath: process.env.PUBLIC_URL,
 		filename: isEnvProduction ? '[name].[contenthash:8].js' : '[name].js',
 	},
 	resolve: {
@@ -58,25 +60,19 @@ const baseConfig = {
 		rules: [
 			/**
 			 * Handle node_modules packages that contain sourcemaps
-			 * 这个插件和 devtool 里的 source-map 并不冲突，也就是 devtool 也要设置的
-			 * 主要是为了处理第三方库的 sourcemap 提取
+			 * 详情看这里：https://webpack.docschina.org/loaders/source-map-loader/
+			 * 大致意思是，第三方库有 source-map 的时候，这个 loader 会把他们加载收集
+			 * 并且交给 webpack 根据 devtool source-map 类型进一步加工，然后可以 debugger 到指定的源文件
+			 * 这里排除了 babel runtime 也是没什么好多说的，这类文件基本都是 es5 的沙盒函数，不需要
 			 */
 			{
 				enforce: 'pre',
 				exclude: /@babel(?:\/|\\{1,2})runtime/,
-				/**
-				 * 可以看到 scss 的这个插件没管
-				 * 这个应该也是可以理解的，毕竟第三方库肯定是把 css 暴露出来的
-				 * 自己源文件的 scss 要用 scss 自己处理，devtool 只是处理 JS 的
-				 * 所以是三个东西：
-				 * 	devtool sourcemap -> 处理自己写的文件的 js
-				 * 	scss sourcemap -> 处理预处理器的 map
-				 *  source-map-loader -> 处理第三方库的 map
-				 */
 				test: /\.(js|mjs|jsx|ts|tsx|css)$/,
 				loader: require.resolve('source-map-loader'),
 			},
 			{
+				// oneOf 是从上到下的，优先命中
 				oneOf: [
 					{
 						// webpack v5，使用 type 来替换原来的 loader
@@ -108,7 +104,7 @@ const baseConfig = {
 									ref: true,
 								},
 							},
-							// 普通的资源链接引入 svg 兜底
+							// 普通的资源链接引入 svg 兜底，因为这个插件，看来 file loader 单独下载的
 							{
 								loader: require.resolve('file-loader'),
 							},
@@ -116,8 +112,7 @@ const baseConfig = {
 						issuer: {
 							/**
 							 * 文档解释：
-							 * 在规则中，属性 test, include, exclude 和 resource 对 resource 匹配，并且属性 issuer 对 issuer 匹配。
-							 * 只有在这些文件发起的 resolve 才会命中这个 loader
+							 * 只有在这些文件类型发起的 resolve 才会命中这个 loader
 							 */
 							and: [/\.(ts|tsx|js|jsx)$/],
 						},
@@ -134,7 +129,7 @@ const baseConfig = {
 							 * presets 的顺序是从右往左
 							 *
 							 * preset-react
-							 * 只要关注一个 runtime 自动导入就可以了，其他不需要关注
+							 * 只要关注一个 runtime automatic 就可以了，其他不需要关注
 							 *
 							 * preset-env
 							 * 根据 target 按需处理 polyfill、词法
@@ -142,11 +137,11 @@ const baseConfig = {
 							 * entry：
 							 * 你需要手动再文件中引入 polyfill，但是 preset 会根据你的环境，将你引入的重新按需细分
 							 * usage：
-							 * 你可以不用关心 polyfill， preset 会自动帮你按需处理
+							 * 你可以不用关心 polyfill， preset 会自动帮你按需处理，但是会挂到全局对象上
 							 * false:
 							 * 这个是默认值，不做任何处理，这个以前是配合 babel-polyfill 全量挂载用的
 							 *
-							 * 使用 transform-runtime 转化成沙盒工具函数会更好，而且这个值就设置成 false，默认值
+							 * 使用 transform-runtime 转化成沙盒工具函数会更好
 							 *
 							 * preset-typescript 先保持默认吧
 							 */
@@ -154,17 +149,27 @@ const baseConfig = {
 								[
 									'@babel/preset-env',
 									{
+										// 这个值设置成 false + transform-runtime 才是最佳实践
 										useBuiltIns: false, // 虽然默认值就是 false，但这里显式的强调一下
 									},
 								],
 								[
 									'@babel/preset-react',
 									{
-										runtime: 'automatic',
+										runtime: 'automatic', // 有了这个配置，在 jsx 中不需要一直 import react
 									},
 								],
 								['@babel/preset-typescript'],
 							],
+							/**
+							 * This is a feature of `babel-loader` for webpack (not Babel itself).
+							 * It enables caching results in ./node_modules/.cache/babel-loader/
+							 * directory for faster rebuilds.
+							 * See #6846 for context on why cacheCompression is disabled
+							 * 生产构建和开发构建都可以用 cache 所以没区分环境单独处理
+							 * 文档中描述，开启缓存，速度至少提升 1 倍
+							 * 注意，这个仅仅是讨论 babel-loader 的缓存处理，这么设置是最佳实践
+							 */
 							cacheDirectory: true,
 							cacheCompression: false,
 							/**
@@ -182,6 +187,7 @@ const baseConfig = {
 									{ legacy: true },
 								],
 								[
+									// 配合上文 useBuiltIns false，这里是自动 helper 函数转化
 									'@babel/plugin-transform-runtime',
 									{
 										/**
@@ -194,19 +200,12 @@ const baseConfig = {
 							],
 						},
 					},
-					/**
-					 * 这个是为了处理 js 和 mjs
-					 * 为了配合 oneOf，所以这个优先级会略高
-					 */
 					{
 						test: /\.(js|mjs)$/,
 						/**
 						 * 这个排除挺重要的，因为 node_modules 里的代码，其实也要管，不过 runtime 是不需要管的
 						 * ↑↑↑ 因为 runtime 主要是 babel 运行时候的 polyfill 沙盒
-						 * 配合 transform-runtime 转化用的，所以不用管
-						 *
-						 * 这个管了命中之后，由于 oneOf 原则，上面那条里只要写 includes 就好了
-						 * 因为普通的包都是 JS 格式的，都到了这条里处理了
+						 * 配合 transform-runtime 转化用的，所以不用管（这个很重要，要理解这个机制，这个 exclude）
 						 */
 						exclude: /@babel(?:\/|\\{1,2})runtime/,
 						loader: require.resolve('babel-loader'),
@@ -222,6 +221,7 @@ const baseConfig = {
 							 * See #6846 for context on why cacheCompression is disabled
 							 * 生产构建和开发构建都可以用 cache 所以没区分环境单独处理
 							 * 文档中描述，开启缓存，速度至少提升 1 倍
+							 * 注意，这个仅仅是讨论 babel-loader 的缓存处理，这么设置是最佳实践
 							 */
 							cacheDirectory: true,
 							cacheCompression: false,
@@ -230,8 +230,9 @@ const baseConfig = {
 							 * code.  Without the options below, debuggers like VSCode
 							 * show incorrect code and set breakpoints on the wrong lines.
 							 *
-							 * 主要是为了处理 node_modules 里的 sourceMap
-							 * 这里建议开启
+							 * 这个解释看起来主要是为了更好的 debugger node_modules 设置的
+							 * 我看 create app 里也是这个地方开了上文的因为没有 node_modules 所以没开
+							 * 就认为是最佳实践吧
 							 */
 							sourceMaps: true,
 							inputSourceMap: true,
@@ -248,7 +249,7 @@ const baseConfig = {
 					 * type: 'asset/resource' 在 webpack v5 中就是 file-loader
 					 * 这个是兜底处理
 					 * 其实排除了 js 等文件，也排除了大多数在逻辑代码中涉及到的静态资源的 resolve
-					 * 要想清楚这个顺序以及排除的关系（这个已经使用 webp 类型测试过，如果没有此 loader，无法处理这类文件）
+					 * 要想清楚这个顺序以及排除的关系（我单独用 webp 类型测试过，如果没有此 loader，无法处理这类文件）
 					 */
 					{
 						/**
@@ -260,6 +261,7 @@ const baseConfig = {
 						exclude: [
 							/^$/,
 							/\.(js|mjs|jsx|ts|tsx)$/,
+							// html 和 json 会使用内部加载器处理，所以要排除（by webpacks internal loaders）
 							/\.html$/,
 							/\.json$/,
 						],
@@ -303,7 +305,7 @@ const baseConfig = {
 		 */
 		new InterpolateHtmlPlugin(HtmlWebpackPlugin, process.env),
 
-		// 模块未找到时提供一些用用的上下文做排查
+		// 模块未找到时提供一些上下文做排查
 		new ModuleNotFoundPlugin(appRootPathResolve('./')),
 
 		/**
@@ -320,57 +322,9 @@ const baseConfig = {
 		new ReactRefreshWebpackPlugin({
 			/**
 			 * 这个遮罩会替换 devServer client 里的配置
-			 * 不过如果是 true，则不可被关
+			 * 如果是 true，则不可被关
 			 */
 			overlay: true,
-		}),
-
-		/**
-		 * TypeScript type checking
-		 * 加快 ts 检查以及错误追踪，保持这个配置就好了
-		 * https://www.npmjs.com/package/fork-ts-checker-webpack-plugin
-		 */
-		new ForkTsCheckerWebpackPlugin({
-			async: !isEnvProduction,
-			typescript: {
-				typescriptPath: resolve.sync('typescript', {
-					basedir: appRootPathResolve('./node_modules'),
-				}),
-				configOverwrite: {
-					compilerOptions: {
-						sourceMap: isEnvProduction,
-						skipLibCheck: true,
-						inlineSourceMap: false,
-						declarationMap: false,
-						noEmit: true,
-						incremental: true,
-						tsBuildInfoFile: appRootPathResolve(
-							'./node_modules/.cache/tsconfig.tsbuildinfo'
-						),
-					},
-				},
-				context: appRootPathResolve('./'),
-				diagnosticOptions: {
-					syntactic: true,
-				},
-				mode: 'write-references',
-			},
-			issue: {
-				// This one is specifically to match during CI tests,
-				// as micromatch doesn't match
-				// '../cra-template-typescript/template/src/App.tsx'
-				// otherwise.
-				include: [{ file: '**/src/**/*.{ts,tsx}' }],
-				exclude: [
-					// { file: '**/src/**/__tests__/**' },
-					// { file: '**/src/**/?(*.){spec|test}.*' },
-					// { file: '**/src/setupProxy.*' },
-					// { file: '**/src/setupTests.*' },
-				],
-			},
-			logger: {
-				infrastructure: 'silent',
-			},
 		}),
 	],
 };

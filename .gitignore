@@ -1,7 +1,7 @@
 dist/
 node_modules/
+env/*.local
 
-.env.local.*
 .DS_Store
 *.log
 .vscode

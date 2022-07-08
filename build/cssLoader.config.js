@@ -23,7 +23,7 @@ const getStyleLoaders = (cssOptions, preProcessor) => {
 		// 生产环境，使用这个 loader 压缩并抽出单独的文件
 		isEnvProduction && {
 			loader: MiniCssExtractPlugin.loader,
-			// 路径的插入方式，是唯一一个值得关注的配置项
+			// 路径的插入方式，是唯一一个值得关注的配置项，暂时注释
 			// options: { publicPath: '../../' }
 		},
 		{

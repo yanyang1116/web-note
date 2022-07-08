@@ -6,7 +6,10 @@ const envArgs = process.argv;
 const dotenvExpand = require('dotenv-expand');
 const dotenv = require('dotenv');
 
-// 区分 NODE_ENV 和 DELOY_ENV 是有必要的
+/**
+ * 区分 NODE_ENV 和 DELOY_ENV 是有必要的
+ * 具体就不举例子了，总之会有用到这两个变量的场景
+ */
 let DEPLOY_ENV = envArgs[envArgs.length - 1];
 DEPLOY_ENV = DEPLOY_ENV.replace('--', ''); // 参数这里以 -- 传递，这里要处理下
 
@@ -20,7 +23,7 @@ module.exports = function () {
 		);
 	}
 
-	if (DEPLOY_ENV !== 'dev' && DEPLOY_ENV !== 'prd') {
+	if (!['dev', 'prd', 'test'].includes(DEPLOY_ENV)) {
 		throw new Error(
 			'The DEPLOY_ENV environment variable is required but was not specified or wrong.'
 		);

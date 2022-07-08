@@ -26,3 +26,10 @@ husky TODO:
 `"prettier": "prettier --write ."` 这个命令在 `lint staged` 的时候应该写成 `"prettier": "prettier --write"` 只覆盖当前
 
 es lint、ts lint、style lint TODO
+
+
+## webpack https 调试 TODO
+## 生产模式 dll，ts fork 优化 TODO
+## 生产配置 TODO
+## tsconfig 和目前 webpack 关系
+## webpack 5 代理？？？

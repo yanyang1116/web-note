@@ -13,7 +13,6 @@
 	 */
 	"include": ["src/**/*", "build/**/*", "typing/**/*"],
 	"compilerOptions": {
-		// "outDir": "./lib",
 		"allowJs": true,
 		"jsx": "react-jsx",
 		/**
@@ -29,8 +28,8 @@
 		 *
 		 * 这里要 CommonJS + ES5 ，因为最终文件要在 node 下运行
 		 */
-		"module": "CommonJS",
-		"target": "ES5",
+		// "module": "CommonJS",
+		// "target": "ES5",
 		/**
 		 * https://typescript.bootcss.com/module-resolution.html
 		 * https://www.typescriptlang.org/docs/handbook/module-resolution.html
