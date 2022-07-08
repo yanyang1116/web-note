@@ -1,0 +1,4 @@
+PUBLIC_URL=/
+DEPLOY_ENV=dev
+TEST_URL=test
+

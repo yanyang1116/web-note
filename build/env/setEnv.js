@@ -6,10 +6,7 @@ const envArgs = process.argv;
 const dotenvExpand = require('dotenv-expand');
 const dotenv = require('dotenv');
 
-/**
- * 区分 NODE_ENV 和 DELOY_ENV 是有必要的
- * 有时候想生产 debugger，变量环境依赖 NODE_ENV 会比较繁琐，因为 NODE_ENV 是和打包挂钩的
- */
+// 区分 NODE_ENV 和 DELOY_ENV 是有必要的
 let DEPLOY_ENV = envArgs[envArgs.length - 1];
 DEPLOY_ENV = DEPLOY_ENV.replace('--', ''); // 参数这里以 -- 传递，这里要处理下
 

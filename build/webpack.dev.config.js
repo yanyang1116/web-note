@@ -73,7 +73,7 @@ checkBrowsers(appRootPathResolve('./'), isInteractive)
 
 		/**
 		 * TODO
-		 * https 的链接方式，可以之后调试一下
+		 * https 方式，可以之后调试一下
 		 */
 		const protocol = process.env.HTTPS === 'true' ? 'https' : 'http';
 

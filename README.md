@@ -24,3 +24,5 @@ husky TODO:
 -   prettierrc 格式化
 
 `"prettier": "prettier --write ."` 这个命令在 `lint staged` 的时候应该写成 `"prettier": "prettier --write"` 只覆盖当前
+
+es lint、ts lint、style lint TODO
