@@ -1,4 +1,5 @@
-import React, { useCallback, useMemo, useState } from 'react';
+import React, { useLayoutEffect, useCallback, useMemo, useState } from 'react';
+import { useEffect } from 'react';
 // import styles from './assets/global.scss';
 // import A from './assets/800webp.webp';
 // import { Provider } from 'react-redux';
@@ -16,7 +17,30 @@ import React, { useCallback, useMemo, useState } from 'react';
 // import routerConfig from './views/index';
 // const history = createBrowserHistory({ window });
 
+// document.documentElement.onclick = () => {
+// 	document.documentElement.requestFullscreen();
+// };
 export default function App() {
+	const fullScreenFn = useMemo(
+		() => () => {
+			document.fullscreen
+				? document.exitFullscreen()
+				: document.documentElement.requestFullscreen();
+		},
+		[]
+	);
+	useLayoutEffect(() => {
+		document.documentElement.addEventListener('dblclick', fullScreenFn);
+		return () =>
+			document.documentElement.removeEventListener(
+				'dblclick',
+				fullScreenFn
+			);
+		// document.documentElement.onclick = () => {
+		// 	document.documentElement.requestFullscreen();
+		// };
+		// document.getElementsByTagName('body')[0].requestFullscreen();
+	}, []);
 	const [count, setCount] = useState(1);
 
 	const handleClick = useCallback(() => {

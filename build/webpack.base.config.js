@@ -322,7 +322,6 @@ const baseConfig = {
 		new ReactRefreshWebpackPlugin({
 			/**
 			 * 这个遮罩会替换 devServer client 里的配置
-			 * 如果是 true，则不可被关
 			 */
 			overlay: true,
 		}),

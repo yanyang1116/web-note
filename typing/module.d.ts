@@ -4,9 +4,7 @@
 // declare module '*.css';
 
 declare global {
-	interface Window {
-		__REDUX_DEVTOOLS_EXTENSION_COMPOSE__: any;
-	}
+	interface Window {}
 	namespace NodeJS {
 		interface ProcessEnv {
 			DEPLOY_ENV: 'dev' | 'prd';
