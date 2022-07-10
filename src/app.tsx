@@ -1,60 +1,29 @@
-import React, { useLayoutEffect, useCallback, useMemo, useState } from 'react';
-import { useEditor, EditorContent } from '@tiptap/react';
-import StarterKit from '@tiptap/starter-kit';
-import Highlight from '@tiptap/extension-highlight';
-import Typography from '@tiptap/extension-typography';
-import './assets/md-theme/default/index.scss';
-import Document from '@tiptap/extension-document';
-import Placeholder from '@tiptap/extension-placeholder';
+import React from 'react';
+import {
+	Route,
+	Routes,
+	unstable_HistoryRouter as HistoryRouter,
+} from 'react-router-dom';
+import { createBrowserHistory } from 'history';
 
-import styles from './index.module.scss';
-import SideBar from './components/SideBar/index';
+import routerConfig from './views/index';
 
-const CustomDocument = Document.extend({
-	content: 'paragraph block*',
-});
+const history = createBrowserHistory({ window });
 
 export default function App() {
-	// const fullScreenFn = useMemo(
-	// 	() => () => {
-	// 		document.fullscreen
-	// 			? document.exitFullscreen()
-	// 			: document.documentElement.requestFullscreen();
-	// 	},
-	// 	[]
-	// );
-	// useLayoutEffect(() => {
-	// 	document.documentElement.addEventListener('dblclick', fullScreenFn);
-	// 	return () =>
-	// 		document.documentElement.removeEventListener(
-	// 			'dblclick',
-	// 			fullScreenFn
-	// 		);
-	// }, []);
-
-	const editor = useEditor({
-		extensions: [
-			StarterKit.configure({
-				document: false,
-			}),
-			Highlight,
-			Typography,
-			CustomDocument,
-			Placeholder.configure({
-				placeholder: ({}) => {
-					return 'input ...';
-				},
-			}),
-		],
-		content: '',
-	});
-
 	return (
-		<div className={styles.wrapper}>
-			<div className={styles.container}>
-				<EditorContent editor={editor} />
-			</div>
-			<SideBar />
-		</div>
+		<HistoryRouter history={history}>
+			<Routes>
+				{routerConfig.map((item) => (
+					<Route
+						key={item.path}
+						path={item.path}
+						element={React.createElement(
+							item.element as unknown as React.FunctionComponent
+						)}
+					/>
+				))}
+			</Routes>
+		</HistoryRouter>
 	);
 }
