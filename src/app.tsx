@@ -1,66 +1,60 @@
 import React, { useLayoutEffect, useCallback, useMemo, useState } from 'react';
-import { useEffect } from 'react';
-// import styles from './assets/global.scss';
-// import A from './assets/800webp.webp';
-// import { Provider } from 'react-redux';
-// import {
-// 	Route,
-// 	unstable_HistoryRouter as HistoryRouter,
-// } from 'react-router-dom';
-// import { createBrowserHistory } from 'history';
+import { useEditor, EditorContent } from '@tiptap/react';
+import StarterKit from '@tiptap/starter-kit';
+import Highlight from '@tiptap/extension-highlight';
+import Typography from '@tiptap/extension-typography';
+import './assets/md-theme/default/index.scss';
+import Document from '@tiptap/extension-document';
+import Placeholder from '@tiptap/extension-placeholder';
 
-// import store from './store/index';
-// process.env.
-// const a: XOR<string, number>
+import styles from './index.module.scss';
+import SideBar from './components/SideBar/index';
 
-// import '@view/assets/global.less';
-// import routerConfig from './views/index';
-// const history = createBrowserHistory({ window });
+const CustomDocument = Document.extend({
+	content: 'paragraph block*',
+});
 
-// document.documentElement.onclick = () => {
-// 	document.documentElement.requestFullscreen();
-// };
 export default function App() {
-	const fullScreenFn = useMemo(
-		() => () => {
-			document.fullscreen
-				? document.exitFullscreen()
-				: document.documentElement.requestFullscreen();
-		},
-		[]
-	);
-	useLayoutEffect(() => {
-		document.documentElement.addEventListener('dblclick', fullScreenFn);
-		return () =>
-			document.documentElement.removeEventListener(
-				'dblclick',
-				fullScreenFn
-			);
-		// document.documentElement.onclick = () => {
-		// 	document.documentElement.requestFullscreen();
-		// };
-		// document.getElementsByTagName('body')[0].requestFullscreen();
-	}, []);
-	const [count, setCount] = useState(1);
+	// const fullScreenFn = useMemo(
+	// 	() => () => {
+	// 		document.fullscreen
+	// 			? document.exitFullscreen()
+	// 			: document.documentElement.requestFullscreen();
+	// 	},
+	// 	[]
+	// );
+	// useLayoutEffect(() => {
+	// 	document.documentElement.addEventListener('dblclick', fullScreenFn);
+	// 	return () =>
+	// 		document.documentElement.removeEventListener(
+	// 			'dblclick',
+	// 			fullScreenFn
+	// 		);
+	// }, []);
 
-	const handleClick = useCallback(() => {
-		setCount(count + 1);
-	}, [count]);
+	const editor = useEditor({
+		extensions: [
+			StarterKit.configure({
+				document: false,
+			}),
+			Highlight,
+			Typography,
+			CustomDocument,
+			Placeholder.configure({
+				placeholder: ({}) => {
+					return 'input ...';
+				},
+			}),
+		],
+		content: '',
+	});
 
 	return (
-		<div>
-			<div onClick={handleClick}>点击啊</div>
-			<div onClick={handleClick}>{process.env.DEPLOY_ENV}</div>
-			<div>{count}</div>
-			{/* <img src={A} /> */}
-			<div className="a"></div>
+		<div className={styles.wrapper}>
+			<div className={styles.container}>
+				<EditorContent editor={editor} />
+			</div>
+			<SideBar />
 		</div>
-		// <Provider store={store}>
-		// <HistoryRouter history={history}>
-		// 	{routerConfig.map((item) => (
-		// 		<Route path={item.path} element={item.element} />
-		// 	))}
-		// </HistoryRouter>
-		// </Provider>
 	);
 }

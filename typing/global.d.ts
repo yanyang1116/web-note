@@ -1,3 +1,7 @@
+declare module '*.scss';
+declare module '*.svg';
+declare module '*.webp';
+
 type Without<T, U> = { [P in Exclude<keyof T, keyof U>]?: any };
 
 declare type XOR<T, U> = T | U extends object

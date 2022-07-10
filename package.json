@@ -5,6 +5,7 @@
 	"scripts": {
 		"dll": "webpack --config ./build/webpack.dll.js",
 		"dev": "cross-env NODE_ENV=development node ./build/webpack.dev.config.js --dev",
+		"serve": "npm run dev",
 		"dev:test": "cross-env NODE_ENV=development node ./build/webpack.dev.config.js --test",
 		"build": "cross-env NODE_ENV=production node ./build/webpack.prd.config.js --prd",
 		"husky:install": "husky install",
@@ -72,6 +73,11 @@
 	},
 	"dependencies": {
 		"@babel/runtime-corejs3": "^7.18.3",
+		"@tiptap/extension-highlight": "^2.0.0-beta.35",
+		"@tiptap/extension-placeholder": "^2.0.0-beta.53",
+		"@tiptap/extension-typography": "^2.0.0-beta.22",
+		"@tiptap/react": "^2.0.0-beta.114",
+		"@tiptap/starter-kit": "^2.0.0-beta.191",
 		"normalize.css": "^8.0.1",
 		"react": "^18.1.0",
 		"react-dom": "^18.1.0",
