@@ -2,33 +2,17 @@ import { useEditor, EditorContent } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import Highlight from '@tiptap/extension-highlight';
 import Typography from '@tiptap/extension-typography';
-import '../../assets/md-theme/default/index.scss';
 import Document from '@tiptap/extension-document';
 import Placeholder from '@tiptap/extension-placeholder';
 
+import '../../assets/md-theme/default/index.scss';
 import styles from './index.module.scss';
 import SideBar from '../../components/SideBar/index';
 
-const CustomDocument = Document.extend({
-	content: 'paragraph block*',
-});
-
-export default function App() {
+export default function Index() {
 	const editor = useEditor({
-		extensions: [
-			StarterKit.configure({
-				document: false,
-			}),
-			Highlight,
-			Typography,
-			CustomDocument,
-			Placeholder.configure({
-				placeholder: ({}) => {
-					return 'input ...';
-				},
-			}),
-		],
-		content: '',
+		extensions: [Highlight, StarterKit, Typography],
+		content: 'input ...',
 	});
 
 	return (

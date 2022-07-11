@@ -1,5 +1,4 @@
 import { ReactNode } from 'react';
-
 import { RouteObject } from 'react-router-dom';
 import Loadable from 'react-loadable';
 

@@ -1,0 +1,149 @@
+@use '../../assets/variable.scss' as vars;
+
+.wrapper {
+	font-size: 12px;
+	position: relative;
+	overflow: hidden;
+	padding: 90px 1em 1em 1em;
+	flex: none;
+	width: 12vw;
+	height: 100vh;
+	box-sizing: border-box;
+	box-shadow: -3px 0px 6px rgba(100, 100, 100, .3);
+	color: vars.$font-color;
+	.avatarWrapper {
+		display: flex;
+		align-items: flex-end;
+		background: repeating-linear-gradient(30deg, rgb(151, 111, 155), rgb(151, 111, 155) 15px, rgb(188, 148, 191) 0, rgb(188, 148, 191) 30px);
+		padding: 6px 0;
+		position: absolute;
+		left: 0;
+		top: 0;
+		right: 0;
+		i {
+			border: 1px vars.$white solid;
+			width: 66px;
+			height: 66px;
+			margin-left: .6em;
+			border-radius: 50%;
+			background: url(../../assets/gjx.webp) no-repeat;
+			background-position: center center;
+			background-size: auto 100%;
+		}
+		p {
+			color: vars.$font-color-lighter;
+			margin-left: .5em;
+			font-size: 16px;
+		}
+	}
+
+	.newWrapper {
+		@keyframes newWrapperHover
+		{
+			0% {transform: rotate(0deg);}
+			100% {transform: rotate(90deg);}
+		}
+		@keyframes newWrapperHoverReset
+		{
+			0% {transform: rotate(90deg);}
+			100% {transform: rotate(0deg);}
+		}
+		width: 3em;
+		height: 3em;
+		cursor: pointer;
+		margin: 1em auto;
+		background-color: rgb(119, 25, 119);
+		box-shadow: 0 0 3px rgba(85, 5, 85, 0.6);
+		border-radius: 50%;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		svg {
+			height: 1.3em;
+			width: 1.3em;
+			* {
+				fill: rgb(255, 226, 132);
+			}
+		}
+	}
+
+	.newWrapperAni {
+		animation: newWrapperHover .5s forwards;
+	}
+
+	.newWrapperReset {
+		animation: newWrapperHoverReset .5s forwards;
+	}
+
+	.recentWrapper {
+		font-size: 14px;
+		ul {
+			margin-left: 1em;
+		}
+		li {
+			display: flex;
+			cursor: pointer;
+			font-size: 12px;
+			font-weight: bold;
+			color: vars.$font-color-light;
+			height: 2em;
+			margin: .2em 0;
+			align-items: center;
+			svg {
+				height: 1em;
+				width: 1em;
+				flex: none;
+				* {
+					fill: vars.$font-color-light;
+				}
+			}
+			span {
+				font-style: italic;
+				white-space: no-wrap;
+				flex: none;
+				margin-left: .3em;
+				flex: auto;
+				// width: 7em;
+				overflow: hidden;
+				text-overflow: ellipsis;
+			}
+		}
+		li.active {
+			background: rgb(242, 227, 243);
+			color: rgb(167, 30, 135);
+			svg * {
+				fill: rgb(167, 30, 135);
+			}
+		}
+	}
+
+	.totalWrapper, .trashWrapper {
+		position: absolute;
+		height: 2.5em;
+		display: flex;
+		left: 0;
+		right: 0;
+		cursor: default;
+		font-size: 14px;
+		display: flex;
+		align-items: center;
+		padding-left: 1em;
+		svg {
+			margin-right: .3em;
+			height: 1em;
+			width: 1em;
+			* {
+				fill: vars.$font-color;
+			}
+		}
+	}
+
+	.trashWrapper {
+		transform: translate(0, 3.2em);
+	}
+
+	.totalWrapper.active, .trashWrapper.active {
+		background-color: vars.$light-grey;
+		font-weight: bold;
+	}
+}

@@ -1,7 +1,13 @@
 .wrapper {
+	font-size: 14px;
 	display: flex;
+	justify-content: flex-start;
 }
 .container {
+	overflow: hidden;
 	flex: auto;
-	margin: auto;
+	flex-wrap: wrap;
+	height: 100vh;
+	box-sizing: border-box;
+	padding: 1em 2em;
 }
