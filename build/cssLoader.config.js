@@ -83,7 +83,7 @@ const getStyleLoaders = (cssOptions, preProcessor) => {
 		},
 	].filter(Boolean);
 
-	if (preProcessor && !preProcessor.isCssModule) {
+	if (preProcessor) {
 		/**
 		 * resolve-url-loader 是专门为了配合 sass-loader 使用的
 		 * 这里其实也算是写死的使用 sass，这个保持默认就行了，不要太关心配置
