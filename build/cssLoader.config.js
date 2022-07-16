@@ -26,6 +26,13 @@ const getStyleLoaders = (cssOptions, preProcessor) => {
 			// 路径的插入方式，是唯一一个值得关注的配置项，暂时注释
 			// options: { publicPath: '../../' }
 		},
+		// 生成 scss-module 声明文件
+		{
+			loader: 'dts-css-modules-loader',
+			options: {
+				namedExport: true,
+			},
+		},
 		{
 			/**
 			 * css-loader 是用来处理 文件中被 import、require 的 css
@@ -72,7 +79,7 @@ const getStyleLoaders = (cssOptions, preProcessor) => {
 		},
 	].filter(Boolean);
 
-	if (preProcessor) {
+	if (preProcessor && !preProcessor.isCssModule) {
 		/**
 		 * resolve-url-loader 是专门为了配合 sass-loader 使用的
 		 * 这里其实也算是写死的使用 sass，这个保持默认就行了，不要太关心配置
@@ -117,14 +124,17 @@ module.exports = [
 	// using the extension .module.css
 	{
 		test: cssModuleRegex,
-		use: getStyleLoaders({
-			importLoaders: 1,
-			sourceMap: isEnvProduction,
-			modules: {
-				mode: 'local',
-				getLocalIdent: getCSSModuleLocalIdent,
+		use: getStyleLoaders(
+			{
+				importLoaders: 1,
+				sourceMap: isEnvProduction,
+				modules: {
+					mode: 'local',
+					getLocalIdent: getCSSModuleLocalIdent,
+				},
 			},
-		}),
+			{ isCssModule: true }
+		),
 	},
 	// Opt-in support for SASS (using .scss or .sass extensions).
 	// By default we support SASS Modules with the

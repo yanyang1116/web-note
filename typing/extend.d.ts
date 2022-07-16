@@ -1,9 +1,10 @@
 // declare module '*.png';
 // declare module '*.jpg';
 // declare module '*.jpeg';
-declare module '*.scss';
+
 declare global {
 	interface Window {}
+
 	namespace NodeJS {
 		interface ProcessEnv {
 			DEPLOY_ENV: 'dev' | 'prd';
