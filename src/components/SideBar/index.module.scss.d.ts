@@ -1,15 +1,11 @@
-export interface IIndexModuleScss {
-  'wrapper': string;
-  'avatarWrapper': string;
-  'newWrapper': string;
-  'newWrapperAni': string;
-  'newWrapperHover': string;
-  'newWrapperReset': string;
-  'newWrapperHoverReset': string;
-  'recentWrapper': string;
-  'active': string;
-  'totalWrapper': string;
-  'trashWrapper': string;
-}
-declare const styles: IIndexModuleScss;
-export = styles;
+export const wrapper: string;
+export const newWrapperHover: string;
+export const newWrapperHoverReset: string;
+export const avatarWrapper: string;
+export const newWrapper: string;
+export const newWrapperAni: string;
+export const newWrapperReset: string;
+export const recentWrapper: string;
+export const active: string;
+export const totalWrapper: string;
+export const trashWrapper: string;

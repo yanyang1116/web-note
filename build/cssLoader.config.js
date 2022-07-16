@@ -26,8 +26,12 @@ const getStyleLoaders = (cssOptions, preProcessor) => {
 			// 路径的插入方式，是唯一一个值得关注的配置项，暂时注释
 			// options: { publicPath: '../../' }
 		},
-		// 生成 scss-module 声明文件
-		{
+		/**
+		 * 生成 scss-module 声明文件
+		 * https://github.com/Megaputer/dts-css-modules-loader
+		 * 放这里是有道理的，要等 css 文件出来之后，才能构建平级的声明关系
+		 */
+		preProcessor?.isCssModule && {
 			loader: 'dts-css-modules-loader',
 			options: {
 				namedExport: true,
@@ -92,12 +96,12 @@ const getStyleLoaders = (cssOptions, preProcessor) => {
 					root: appRootPathResolve('./src'),
 				},
 			},
-			{
-				loader: require.resolve(preProcessor),
+			...preProcessor.loaders.map((item) => ({
+				loader: require.resolve(item),
 				options: {
 					sourceMap: true,
 				},
-			}
+			}))
 		);
 	}
 	return loaders;
@@ -108,9 +112,13 @@ module.exports = [
 		test: cssRegex,
 		exclude: cssModuleRegex,
 		use: getStyleLoaders({
-			importLoaders: 1,
+			importLoaders: 1, // 指的是 post-css
 			sourceMap: isEnvProduction,
 			modules: {
+				/**
+				 * ICSS 提供 CSS Module 支持，并且为其他工具提供了一个底层语法，以实现它们自己的 css-module 变体。
+				 * 看了下，没看懂，保持这个默认值就好，后面有很多地方都有这个设置
+				 */
 				mode: 'icss',
 			},
 		}),
@@ -124,17 +132,15 @@ module.exports = [
 	// using the extension .module.css
 	{
 		test: cssModuleRegex,
-		use: getStyleLoaders(
-			{
-				importLoaders: 1,
-				sourceMap: isEnvProduction,
-				modules: {
-					mode: 'local',
-					getLocalIdent: getCSSModuleLocalIdent,
-				},
+		use: getStyleLoaders({
+			importLoaders: 1, // post-css
+			sourceMap: isEnvProduction,
+			modules: {
+				// 这里说的是通过，getCSSModuleLocalIdent 结合本地来生成 hash，以便于符合 css modules 的作用域隔离
+				mode: 'local',
+				getLocalIdent: getCSSModuleLocalIdent,
 			},
-			{ isCssModule: true }
-		),
+		}),
 	},
 	// Opt-in support for SASS (using .scss or .sass extensions).
 	// By default we support SASS Modules with the
@@ -144,13 +150,13 @@ module.exports = [
 		exclude: sassModuleRegex,
 		use: getStyleLoaders(
 			{
-				importLoaders: 3,
+				importLoaders: 3, // sass-loader、resolve-url-loader、post-css
 				sourceMap: isEnvProduction,
 				modules: {
 					mode: 'icss',
 				},
 			},
-			'sass-loader'
+			{ loaders: ['sass-loader'] }
 		),
 		// Don't consider CSS imports dead code even if the
 		// containing package claims to have no side effects.
@@ -164,14 +170,18 @@ module.exports = [
 		test: sassModuleRegex,
 		use: getStyleLoaders(
 			{
-				importLoaders: 3,
+				importLoaders: 3, // sass-loader、resolve-url-loader、post-css
 				sourceMap: isEnvProduction,
 				modules: {
+					// 这里说的是通过，getCSSModuleLocalIdent 结合本地来生成 hash，以便于符合 scss modules 的作用域隔离
 					mode: 'local',
 					getLocalIdent: getCSSModuleLocalIdent,
 				},
 			},
-			'sass-loader'
+			{
+				isCssModule: true,
+				loaders: ['sass-loader'],
+			}
 		),
 	},
 ];
