@@ -1,12 +1,21 @@
 @use '../../assets/variable.scss' as vars;
 
 .wrapper {
+	> .drapLine {
+		position: absolute;
+		left: 0;
+		top: 0;
+		bottom: 0;
+		width: 3px;
+		z-index: 10;
+		background-color: red;
+	}
 	font-size: 12px;
 	position: relative;
 	overflow: hidden;
 	padding: 90px 1em 1em 1em;
 	flex: none;
-	width: 12vw;
+	// width: 12vw;
 	height: 100vh;
 	box-sizing: border-box;
 	box-shadow: -3px 0px 6px rgba(100, 100, 100, 0.3);

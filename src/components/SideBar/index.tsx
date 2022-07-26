@@ -1,6 +1,14 @@
-import React, { useMemo, useState } from 'react';
+import React, {
+	forwardRef,
+	useCallback,
+	useEffect,
+	useMemo,
+	useRef,
+	useState,
+} from 'react';
 
 import styles from './index.module.scss';
+import useDrag from './useDrag';
 
 import { ReactComponent as IconNew } from '../../assets/icon-new.svg';
 import { ReactComponent as IconAll } from '../../assets/icon-all.svg';
@@ -105,13 +113,29 @@ export default function SideBar() {
 		handleSelectRecentNote(true);
 	}
 
+	const drapLineRef = useRef(null);
+	const containerRef = useRef(null);
+
+	const [width, setWidth] = useState('300px');
+
+	const handleDrag = useCallback(
+		(width: string) => {},
+		[containerRef, drapLineRef]
+	);
+
+	useDrag({
+		ref: drapLineRef,
+		containerRef: containerRef,
+		onDrag: handleDrag,
+	});
+
 	return (
-		<div className={styles.wrapper}>
+		<div className={styles.wrapper} ref={containerRef} style={{ width }}>
+			<i className={styles.drapLine} ref={drapLineRef} draggable />
 			<div className={styles.avatarWrapper}>
 				<i />
 				<p>hi, yy</p>
 			</div>
-
 			<div
 				className={newIconClassName}
 				onMouseOut={() =>
@@ -127,7 +151,6 @@ export default function SideBar() {
 			>
 				<IconNew />
 			</div>
-
 			<div className={styles.recentWrapper}>
 				最近
 				<ul>

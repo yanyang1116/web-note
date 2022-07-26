@@ -1,4 +1,5 @@
 export const wrapper: string;
+export const drapLine: string;
 export const avatarWrapper: string;
 export const newWrapper: string;
 export const newWrapperAni: string;
