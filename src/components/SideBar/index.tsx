@@ -8,7 +8,7 @@ import React, {
 } from 'react';
 
 import styles from './index.module.scss';
-import useDrag from './useDrag';
+// import useDrag from './useDrag';
 
 import { ReactComponent as IconNew } from '../../assets/icon-new.svg';
 import { ReactComponent as IconAll } from '../../assets/icon-all.svg';
@@ -118,16 +118,11 @@ export default function SideBar() {
 
 	const [width, setWidth] = useState('300px');
 
-	const handleDrag = useCallback(
-		(width: string) => {},
-		[containerRef, drapLineRef]
-	);
-
-	useDrag({
-		ref: drapLineRef,
-		containerRef: containerRef,
-		onDrag: handleDrag,
-	});
+	// useDrag({
+	// 	ref: drapLineRef,
+	// 	containerRef: containerRef,
+	// 	onDrag: handleDrag,
+	// });
 
 	return (
 		<div className={styles.wrapper} ref={containerRef} style={{ width }}>

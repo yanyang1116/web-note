@@ -1,6 +1,7 @@
 @use '../../assets/variable.scss' as vars;
 
 .wrapper {
+	user-select: none;
 	> .drapLine {
 		position: absolute;
 		left: 0;
